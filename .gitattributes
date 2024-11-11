@@ -1,0 +1,14 @@
+data/raw/Content_1762_v6.json filter=lfs diff=lfs merge=lfs -text
+data/raw/Content_1773_v2.json filter=lfs diff=lfs merge=lfs -text
+data/raw/Content_1754_v2.json filter=lfs diff=lfs merge=lfs -text
+data/raw/Content_1762_v2.json filter=lfs diff=lfs merge=lfs -text
+data/raw/Content_1762_v3.json filter=lfs diff=lfs merge=lfs -text
+data/raw/Content_1762_v1.json filter=lfs diff=lfs merge=lfs -text
+data/raw/Content_1762_v4.json filter=lfs diff=lfs merge=lfs -text
+data/raw/Content_1762_v5.json filter=lfs diff=lfs merge=lfs -text
+data/raw/Content_1773_v1.json filter=lfs diff=lfs merge=lfs -text
+data/raw/Content_1754_v1.json filter=lfs diff=lfs merge=lfs -text
+data/raw/Content_1759_v1.json filter=lfs diff=lfs merge=lfs -text
+data/raw/Content_1759_v2.json filter=lfs diff=lfs merge=lfs -text
+data/final/alignments.csv filter=lfs diff=lfs merge=lfs -text
+data/work/texts.csv filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,3 @@
+spacy
+torch
+git+https://github.com/maciejjan/matrix-align
