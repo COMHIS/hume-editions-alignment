@@ -29,6 +29,16 @@ body {{
 </html>
 '''
 
+# TODO duplication of run_alignment.py
+def _doc_id(t, level):
+    if level == 'book':
+        return f'{ t["book"] }'
+    elif level == 'page':
+        return f'{ t["book"] }@{ t["page"] }'
+    else:
+        raise NotImplementedError()
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Render alignments as HTML.')
     parser.add_argument(
@@ -37,6 +47,9 @@ def parse_arguments():
     parser.add_argument(
         '-a', '--alignments-file', metavar='FILE',
         help='The file to read the alignments from.')
+    parser.add_argument(
+        '-l', '--level', choices=['book', 'page'], default='page',
+        help='The level of grouping sentences into texts.')
     parser.add_argument(
         '-o', '--output-dir', metavar='DIR',
         help='The directory to output the HTML files to.')
@@ -52,11 +65,13 @@ def render_alignment(doc_id_1, doc_id_2, al, texts, output_dir):
     result.append('<tr><th class="text">{}</th><th class="text">{}</th>'
                   '<th>sim</th></tr>'.format(doc_id_1, doc_id_2))
     
-    book_id_1, page_1 = doc_id_1.split('@')
-    book_id_2, page_2 = doc_id_2.split('@')
+    #book_id_1, page_1 = doc_id_1.split('@')
+    #book_id_2, page_2 = doc_id_2.split('@')
     
-    text_1 = texts[book_id_1.replace('.json', '')][page_1]
-    text_2 = texts[book_id_2.replace('.json', '')][page_2]
+    #text_1 = texts[book_id_1.replace('.json', '')][page_1]
+    #text_2 = texts[book_id_2.replace('.json', '')][page_2]
+    text_1 = texts[doc_id_1]
+    text_2 = texts[doc_id_2]
     max_pos_1 = len(text_1)-1
     max_pos_2 = len(text_2)-1
     i, j = 0, 0
@@ -80,12 +95,12 @@ def render_alignment(doc_id_1, doc_id_2, al, texts, output_dir):
     with open(os.path.join(output_dir, filename), 'w+') as fp:
         fp.write(PAGE_TEMPLATE.format(body = '\n'.join(result)))
 
-def read_texts(filename):
-    result = defaultdict(lambda: defaultdict(list))
+def read_texts(filename, level='page'):
+    result = defaultdict(list)
     with open(filename) as fp:
         reader = csv.DictReader(fp)
         for r in reader:
-            result[r['book']][r['page']].append(r['text'])
+            result[_doc_id(r, level)].append(r['text'])
     return result
 
 def process_alignments(filename, texts, output_dir):
@@ -105,6 +120,6 @@ def process_alignments(filename, texts, output_dir):
 
 if __name__ == '__main__':
     args = parse_arguments()
-    texts = read_texts(args.input_file)
+    texts = read_texts(args.input_file, args.level)
     process_alignments(args.alignments_file, texts, args.output_dir)
 

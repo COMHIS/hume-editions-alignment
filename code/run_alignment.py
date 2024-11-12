@@ -14,7 +14,18 @@ SIM_RAW_THR = 5
 SIM_SYM_THR = 0.1
 SIM_ONESIDED_THR = 0.1
 
-def load_texts(filename):
+def load_texts_by_book(filename):
+    results = []
+    with open(filename) as fp:
+        reader = csv.DictReader(fp)
+        for r in reader:
+            if not results or results[-1]['book'] != r['book']:
+                results.append({ 'book': r['book'], 'sentences': [] })
+            results[-1]['sentences'].append({
+                'pos': len(results[-1]['sentences']), 'text': r['text'] })
+    return results
+
+def load_texts_by_page(filename):
     results = []
     with open(filename) as fp:
         reader = csv.DictReader(fp)
@@ -26,8 +37,13 @@ def load_texts(filename):
             results[-1]['sentences'].append({ 'pos': int(r['pos']), 'text': r['text'] })
     return results
 
-def _doc_id(t):
-    return f'{ t["book"] }@{ t["page"] }'
+def _doc_id(t, level):
+    if level == 'book':
+        return f'{ t["book"] }'
+    elif level == 'page':
+        return f'{ t["book"] }@{ t["page"] }'
+    else:
+        raise NotImplementedError()
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Convert SKVR to CSV files.')
@@ -38,6 +54,9 @@ def parse_arguments():
         '-e', '--embeddings-file', metavar='FILE',
         help='The file to save embeddings to or load them from.')
     parser.add_argument(
+        '-l', '--level', choices=['book', 'page'], default='page',
+        help='The level of grouping sentences into texts.')
+    parser.add_argument(
         '-m', '--model', metavar='NAME',
         help='The SentenceBERT model to use.')
     return parser.parse_args()
@@ -47,7 +66,12 @@ if __name__ == '__main__':
     args = parse_arguments()
 
     # load the texts
-    texts = load_texts(args.input_file)
+    if args.level == 'book':
+        texts = load_texts_by_book(args.input_file)
+    elif args.level == 'page':
+        texts = load_texts_by_page(args.input_file)
+    else:
+        raise NotImplementedError()
 
     # determine text boundaries
     b = torch.cumsum(torch.tensor([0] + [len(t['sentences']) for t in texts]), 0)
@@ -77,14 +101,14 @@ if __name__ == '__main__':
         sim_r = s / p2_len
         sim_sym = 2*s / (p2_len + p1_len)
         
-        doc_id_1 = _doc_id(texts[i])
+        doc_id_1 = _doc_id(texts[i], args.level)
         for j in torch.argwhere((s > SIM_RAW_THR) \
                                 & ((sim_l > SIM_ONESIDED_THR) \
                                     | (sim_r > SIM_ONESIDED_THR)) \
                                 & (sim_sym > SIM_SYM_THR)
                                ).flatten():
             
-            doc_id_2 = _doc_id(texts[i+int(j)+1])
+            doc_id_2 = _doc_id(texts[i+int(j)+1], args.level)
             _ = als_w.writerows([{
                 'doc_id_1': doc_id_1, 'pos_1': int(a[b[i+j+1]-b[i+1]+p]),
                 'doc_id_2': doc_id_2, 'pos_2': p,
