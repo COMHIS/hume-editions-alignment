@@ -3,7 +3,6 @@ import csv
 import json
 import os.path
 import sys
-
 from spacy.lang.en import English
 
 
@@ -23,18 +22,21 @@ if __name__ == '__main__':
     nlp = English()
     nlp.add_pipe("sentencizer")
 
-    writer = csv.DictWriter(sys.stdout, ('book', 'page', 'pos', 'text'))
+    writer = csv.DictWriter(sys.stdout, ('book', 'page', 'region', 'pos', 'text'))
     writer.writeheader()
     for f in args.input_files:
         with open(f) as fp:
             data = json.load(fp)
             for page in data['pages']:
                 for reg in page['PageData']:
-                    for i, s in enumerate(nlp(' '.join(reg['lines'])).sents):
+                    region = reg['region']
+                    pos_counter = 0 # Pos counter value is reseted after each region.
+                    for sentence in nlp(' '.join(reg['lines'])).sents:
                         writer.writerow({
                             'book': os.path.basename(f).replace('.json', ''),
                             'page': page['PageNumber'],
-                            'pos': i,
-                            'text': str(s).replace('- ', '')
+                            'region': region,
+                            'pos': pos_counter,
+                            'text': str(sentence).replace('- ', '')
                         })
-
+                        pos_counter += 1
