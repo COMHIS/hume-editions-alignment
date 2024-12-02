@@ -46,7 +46,7 @@ def _doc_id(t, level):
         raise NotImplementedError()
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Convert SKVR to CSV files.')
+    parser = argparse.ArgumentParser(description='Run alignment based on embeddings.')
     parser.add_argument(
         '-i', '--input-file', metavar='FILE',
         help='The file to read the texts from.')
