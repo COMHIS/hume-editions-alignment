@@ -5,6 +5,8 @@ import os.path
 import sys
 from spacy.lang.en import English
 
+# TODO segment also the footnotes
+# add a flag for sentence segmentation?
 
 def parse_arguments():
     parser = argparse.ArgumentParser(

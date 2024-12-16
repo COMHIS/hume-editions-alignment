@@ -4,11 +4,6 @@ import csv
 import os
 import os.path
 
-# TODO
-# - read the texts, similarities and alignments
-
-OUTPUT_DIR = 'html_output'
-
 PAGE_TEMPLATE = '''
 <html>
 <head>
@@ -65,11 +60,6 @@ def render_alignment(doc_id_1, doc_id_2, al, texts, output_dir):
     result.append('<tr><th class="text">{}</th><th class="text">{}</th>'
                   '<th>sim</th></tr>'.format(doc_id_1, doc_id_2))
     
-    #book_id_1, page_1 = doc_id_1.split('@')
-    #book_id_2, page_2 = doc_id_2.split('@')
-    
-    #text_1 = texts[book_id_1.replace('.json', '')][page_1]
-    #text_2 = texts[book_id_2.replace('.json', '')][page_2]
     text_1 = texts[doc_id_1]
     text_2 = texts[doc_id_2]
     max_pos_1 = len(text_1)-1

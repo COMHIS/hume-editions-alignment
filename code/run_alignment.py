@@ -8,7 +8,6 @@ import torch
 import tqdm
 
 from matrix_align import matrix_align
-from sentence_transformers import SentenceTransformer
 
 SIM_RAW_THR = 5
 SIM_SYM_THR = 0.1
@@ -56,9 +55,6 @@ def parse_arguments():
     parser.add_argument(
         '-l', '--level', choices=['book', 'page'], default='page',
         help='The level of grouping sentences into texts.')
-    parser.add_argument(
-        '-m', '--model', metavar='NAME',
-        help='The SentenceBERT model to use.')
     return parser.parse_args()
 
 
@@ -80,11 +76,7 @@ if __name__ == '__main__':
     if P.isfile(args.embeddings_file):
         x = torch.load(args.embeddings_file)
     else:
-        model = SentenceTransformer('all-MiniLM-L12-v2')
-        sentences = [s['text'] for t in texts for s in t['sentences']]
-        x = model.encode(sentences, convert_to_tensor=True,
-                         normalize_embeddings=True)
-        torch.save(x, args.embeddings_file)
+        raise RuntimeError('Embeddings file not found!')
 
     # check that the embeddings agree with the boundaries vector
     assert x.shape[0] == b[-1]
